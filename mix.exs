@@ -7,7 +7,10 @@ defmodule Advent.MixProject do
       version: "0.1.0",
       elixir: "~> 1.12",
       start_permanent: Mix.env() == :prod,
-      deps: deps()
+      deps: deps(),
+      aliases: aliases(),
+      dialyzer: dialyzer(),
+      elixirc_paths: elixirc_paths(Mix.env())
     ]
   end
 
@@ -26,4 +29,19 @@ defmodule Advent.MixProject do
       {:credo, "~> 1.6", only: [:dev, :test], runtime: false}
     ]
   end
+
+  defp aliases do
+    [
+      compile: ["compile --warnings-as-errors"]
+    ]
+  end
+
+  defp dialyzer do
+    [
+      plt_add_apps: [:eex, :mix]
+    ]
+  end
+
+  defp elixirc_paths(:test), do: ~w[lib test/support]
+  defp elixirc_paths(_), do: ~w[lib]
 end
