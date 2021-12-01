@@ -10,8 +10,7 @@ defmodule Advent.Day01 do
   def part_1(input) do
     input
     |> parse()
-    |> Enum.chunk_every(2, 1, :discard)
-    |> Enum.count(fn [d1, d2] -> d2 > d1 end)
+    |> count_increases()
   end
 
   @doc """
@@ -21,10 +20,20 @@ defmodule Advent.Day01 do
   def part_2(input) do
     input
     |> parse()
-    |> Enum.chunk_every(3, 1, :discard)
-    |> Enum.map(&Enum.sum/1)
+    |> running_average(3)
+    |> count_increases()
+  end
+
+  defp count_increases(depths) do
+    depths
     |> Enum.chunk_every(2, 1, :discard)
     |> Enum.count(fn [d1, d2] -> d2 > d1 end)
+  end
+
+  defp running_average(depths, count) do
+    depths
+    |> Enum.chunk_every(count, 1, :discard)
+    |> Enum.map(&Enum.sum/1)
   end
 
   defp parse(input) do
