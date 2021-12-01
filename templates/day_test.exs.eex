@@ -1,0 +1,39 @@
+defmodule Advent.Day<%= day %>Test do
+  use Advent.Test.Case
+
+  alias Advent.Day<%= day %>
+
+  describe "part 1" do
+    test "example" do
+      input = """
+      """
+
+      assert Day<%= day %>.part_1(input) == :foo
+    end
+
+    @tag :puzzle_input
+    test "puzzle input" do
+      assert "puzzle_inputs/day_<%= day %>.txt"
+             |> File.read!()
+             |> Day<%= day %>.part_1() == :foo
+    end
+  end
+
+  describe "part 2" do
+    @tag :skip
+    test "example" do
+      input = """
+      """
+
+      assert Day<%= day %>.part_2(input) == :foo
+    end
+
+    @tag :skip
+    @tag :puzzle_input
+    test "puzzle input" do
+      assert "puzzle_inputs/day_<%= day %>.txt"
+             |> File.read!()
+             |> Day<%= day %>.part_2() == :foo
+    end
+  end
+end
