@@ -21,7 +21,7 @@ defmodule Advent.Day03 do
   defp calc_rate(numbers, zero_mapping) do
     numbers
     |> Enum.zip()
-    |> Enum.map(fn digit_list ->
+    |> Enum.map_join(fn digit_list ->
       counts =
         digit_list
         |> Tuple.to_list()
@@ -32,7 +32,6 @@ defmodule Advent.Day03 do
         {zeroes, ones} when zeroes < ones -> 1 - zero_mapping
       end
     end)
-    |> Enum.join()
     |> String.to_integer(2)
   end
 

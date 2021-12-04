@@ -26,7 +26,10 @@ defmodule Advent.MixProject do
     [
       # Code analysis
       {:dialyxir, "~> 1.1", only: [:dev, :test], runtime: false},
-      {:credo, "~> 1.6", only: [:dev, :test], runtime: false}
+      {:credo, "~> 1.6", only: [:dev, :test], runtime: false},
+
+      # Structs
+      {:typed_struct, "~> 0.2"}
     ]
   end
 
