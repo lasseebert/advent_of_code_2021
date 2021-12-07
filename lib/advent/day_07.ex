@@ -42,19 +42,12 @@ defmodule Advent.Day07 do
   defp find_least_fuel(points) do
     freqs = Enum.frequencies(points)
     min = freqs |> Map.keys() |> Enum.min()
-    first_usage = calc_usage(freqs, min)
 
-    do_find_least_fuel(freqs, min + 1, first_usage)
-  end
-
-  defp do_find_least_fuel(freqs, candidate, last) do
-    usage = calc_usage(freqs, candidate)
-
-    if usage > last do
-      last
-    else
-      do_find_least_fuel(freqs, candidate + 1, usage)
-    end
+    min
+    |> Stream.unfold(&{calc_usage(freqs, &1), &1 + 1})
+    |> Stream.chunk_every(2, 1)
+    |> Enum.find(fn [a, b] -> a < b end)
+    |> hd()
   end
 
   defp calc_usage(freqs, center) do
