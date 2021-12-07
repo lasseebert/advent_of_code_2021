@@ -28,22 +28,19 @@ defmodule Advent.Day07 do
 
   @doc """
   Part 2
+
+  This function is a parabola with the vertex at the horizontal value we are looking for.
+  This point must be within the min and max points in the data set.
+  So we start at the minimum and go up until the result is worse, then we know that we hit optimum in the last
+  iteration
   """
   @spec part_2(String.t()) :: integer
   def part_2(input) do
-    points = input |> parse() |> Enum.sort()
-    find_least_fuel(points)
-  end
+    freqs = input |> parse() |> Enum.frequencies()
 
-  # This function is a parabola with the vertex at the horizontal value we are looking for.
-  # This point must be within the min and max points in the data set.
-  # So we start at the minimum and go up until the result is worse, then we know that we hit optimum in the last
-  # iteration
-  defp find_least_fuel(points) do
-    freqs = Enum.frequencies(points)
-    min = freqs |> Map.keys() |> Enum.min()
-
-    min
+    freqs
+    |> Map.keys()
+    |> Enum.min()
     |> Stream.unfold(&{calc_usage(freqs, &1), &1 + 1})
     |> Stream.chunk_every(2, 1)
     |> Enum.find(fn [a, b] -> a < b end)
