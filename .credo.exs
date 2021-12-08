@@ -124,7 +124,6 @@
           {Credo.Check.Refactor.FunctionArity, []},
           {Credo.Check.Refactor.LongQuoteBlocks, []},
           {Credo.Check.Refactor.MatchInCondition, []},
-          {Credo.Check.Refactor.MapJoin, []},
           {Credo.Check.Refactor.NegatedConditionsInUnless, []},
           {Credo.Check.Refactor.NegatedConditionsWithElse, []},
           {Credo.Check.Refactor.Nesting, []},
@@ -158,7 +157,9 @@
           {Credo.Check.Warning.UnsafeExec, []}
         ],
         disabled: [
-          #
+          # Disabled in this project
+          {Credo.Check.Refactor.MapJoin, []},
+
           # Checks scheduled for next check update (opt-in for now, just replace `false` with `[]`)
 
           #
