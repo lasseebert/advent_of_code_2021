@@ -23,14 +23,12 @@ defmodule Advent.Day11 do
     input
     |> parse()
     |> iterate()
-    |> Enum.find_index(& &1 == 100)
-    |> then(& &1 + 1)
+    |> Enum.find_index(&(&1 == 100))
+    |> then(&(&1 + 1))
   end
 
-  @doc """
-  Returns a stream of number of flashes in each step
-  """
-  def iterate(map) do
+  # Returns a stream of number of flashes in each step
+  defp iterate(map) do
     Stream.unfold(map, &step/1)
   end
 
