@@ -57,21 +57,20 @@ defmodule Advent.Day14 do
   # Creates a stream of counts of element-pairs.
   # The first element is the template
   defp stream(pair_counts, rules) do
-    Stream.unfold(pair_counts, fn pair_counts ->
-      next =
-        pair_counts
-        |> Enum.flat_map(fn {{a, b}, count} ->
-          element = Map.fetch!(rules, {a, b})
+    Stream.unfold(pair_counts, &{&1, next_pair_counts(&1, rules)})
+  end
 
-          [
-            {{a, element}, count},
-            {{element, b}, count}
-          ]
-        end)
-        |> Enum.reduce(%{}, fn {pair, count}, result -> Map.update(result, pair, count, &(&1 + count)) end)
+  defp next_pair_counts(pair_counts, rules) do
+    pair_counts
+    |> Enum.flat_map(fn {{a, b}, count} ->
+      element = Map.fetch!(rules, {a, b})
 
-      {pair_counts, next}
+      [
+        {{a, element}, count},
+        {{element, b}, count}
+      ]
     end)
+    |> Enum.reduce(%{}, fn {pair, count}, result -> Map.update(result, pair, count, &(&1 + count)) end)
   end
 
   defp parse(input) do
