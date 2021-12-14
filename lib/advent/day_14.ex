@@ -48,8 +48,8 @@ defmodule Advent.Day14 do
     |> Enum.reduce(%{}, fn {element, count}, result -> Map.update(result, element, count, &(&1 + count)) end)
     # First and last element of the template and in the resulting string is the same. They are only counted once, since
     # they have no neighbours. Make sure they are counted twice like all other elements.
-    |> Map.update!(first, & &1 + 1)
-    |> Map.update!(last, & &1 + 1)
+    |> Map.update!(first, &(&1 + 1))
+    |> Map.update!(last, &(&1 + 1))
     # Now divide all counts by two
     |> Enum.into(%{}, fn {element, count} -> {element, div(count, 2)} end)
   end
@@ -59,16 +59,17 @@ defmodule Advent.Day14 do
   defp stream(pair_counts, rules) do
     Stream.unfold(pair_counts, fn pair_counts ->
       next =
-      pair_counts
-      |> Enum.flat_map(fn {{a, b}, count} ->
-        element = Map.fetch!(rules, {a, b})
+        pair_counts
+        |> Enum.flat_map(fn {{a, b}, count} ->
+          element = Map.fetch!(rules, {a, b})
 
-        [
-          {{a, element}, count},
-          {{element, b}, count}
-        ]
-      end)
-      |> Enum.reduce(%{}, fn {pair, count}, result -> Map.update(result, pair, count, &(&1 + count)) end)
+          [
+            {{a, element}, count},
+            {{element, b}, count}
+          ]
+        end)
+        |> Enum.reduce(%{}, fn {pair, count}, result -> Map.update(result, pair, count, &(&1 + count)) end)
+
       {pair_counts, next}
     end)
   end
