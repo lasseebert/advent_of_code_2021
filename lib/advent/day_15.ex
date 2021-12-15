@@ -14,9 +14,9 @@ defmodule Advent.Day15 do
       |> build_directed_graph()
 
     start = {0, 0}
-    dest = graph |> Map.keys() |> Enum.max()
+    goal = graph |> Map.keys() |> Enum.max()
 
-    djikstra(graph, start, dest)
+    djikstra(graph, start, goal)
   end
 
   @doc """
@@ -31,30 +31,30 @@ defmodule Advent.Day15 do
       |> build_directed_graph()
 
     start = {0, 0}
-    dest = graph |> Map.keys() |> Enum.max()
+    goal = graph |> Map.keys() |> Enum.max()
 
-    djikstra(graph, start, dest)
+    djikstra(graph, start, goal)
   end
 
-  defp djikstra(graph, start, dest) do
+  defp djikstra(graph, start, goal) do
     unvisited = graph |> Map.keys() |> MapSet.new()
     distances = graph |> Map.keys() |> Enum.into(%{}, &{&1, :infinity}) |> Map.put(start, 0)
     queue = PriorityQueue.new() |> PriorityQueue.push(start, 0)
 
-    do_djikstra(graph, unvisited, distances, queue, dest)
+    do_djikstra(graph, unvisited, distances, queue, goal)
   end
 
-  defp do_djikstra(graph, unvisited, distances, queue, dest) do
+  defp do_djikstra(graph, unvisited, distances, queue, goal) do
     {{:value, current}, queue} = PriorityQueue.pop(queue)
 
     cond do
       # We have reached the destination
-      current == dest ->
-        Map.fetch!(distances, dest)
+      current == goal ->
+        Map.fetch!(distances, goal)
 
       # current is already visited. This can happen if it was re-prioritized in the queue
       current not in unvisited ->
-        do_djikstra(graph, unvisited, distances, queue, dest)
+        do_djikstra(graph, unvisited, distances, queue, goal)
 
       # Go on with Djikstra
       true ->
@@ -73,15 +73,20 @@ defmodule Advent.Day15 do
 
               _larger ->
                 distances = Map.put(distances, node, new_distance)
-                queue = PriorityQueue.push(queue, node, new_distance)
+                minimum_remaining_distance = manhattan_distance(node, goal)
+                queue = PriorityQueue.push(queue, node, new_distance + minimum_remaining_distance)
                 {distances, queue}
             end
           end)
 
         unvisited = MapSet.delete(unvisited, current)
 
-        do_djikstra(graph, unvisited, distances, queue, dest)
+        do_djikstra(graph, unvisited, distances, queue, goal)
     end
+  end
+
+  defp manhattan_distance({x1, y1}, {x2, y2}) do
+    abs(x1 - x2) + abs(y1 - y2)
   end
 
   # Returns a map of %{node => [{node, weight}]}
