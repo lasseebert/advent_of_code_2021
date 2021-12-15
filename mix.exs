@@ -29,7 +29,10 @@ defmodule Advent.MixProject do
       {:credo, "~> 1.6", only: [:dev, :test], runtime: false},
 
       # Structs
-      {:typed_struct, "~> 0.2"}
+      {:typed_struct, "~> 0.2"},
+
+      # Graphs
+      {:libgraph, "~> 0.13"}
     ]
   end
 

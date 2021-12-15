@@ -19,46 +19,69 @@ defmodule Advent.Day15 do
     djikstra(graph, start, dest)
   end
 
+  @doc """
+  Part 2
+  """
+  @spec part_2(String.t()) :: integer
+  def part_2(input) do
+    graph =
+      input
+      |> parse()
+      |> extend_map()
+      |> build_directed_graph()
+
+    start = {0, 0}
+    dest = graph |> Map.keys() |> Enum.max()
+
+    djikstra(graph, start, dest)
+  end
+
   defp djikstra(graph, start, dest) do
     unvisited = graph |> Map.keys() |> MapSet.new()
     distances = graph |> Map.keys() |> Enum.into(%{}, &{&1, :infinity}) |> Map.put(start, 0)
-    current = start
+    queue = PriorityQueue.new() |> PriorityQueue.push(start, 0)
 
-    do_djikstra(graph, unvisited, distances, current, dest)
+    do_djikstra(graph, unvisited, distances, queue, dest)
   end
 
-  defp do_djikstra(_graph, _unvisited, distances, current, dest) when current == dest do
-    Map.fetch!(distances, dest)
-  end
+  defp do_djikstra(graph, unvisited, distances, queue, dest) do
+    {{:value, current}, queue} = PriorityQueue.pop(queue)
 
-  defp do_djikstra(graph, unvisited, distances, current, dest) do
-    # If current = dest, we can stop here
-    current_distance = Map.fetch!(distances, current)
+    cond do
+      # We have reached the destination
+      current == dest ->
+        Map.fetch!(distances, dest)
 
-    distances =
-      graph
-      |> Map.fetch!(current)
-      |> Enum.filter(fn {node, _distance} -> node in unvisited end)
-      |> Enum.reduce(distances, fn {node, node_distance}, distances ->
-        new_distance = current_distance + node_distance
+      # current is already visited. This can happen if it was re-prioritized in the queue
+      current not in unvisited ->
+        do_djikstra(graph, unvisited, distances, queue, dest)
 
-        Map.update!(distances, node, fn
-          :infinity -> new_distance
-          existing_distance when existing_distance <= new_distance -> existing_distance
-          _larger -> new_distance
-        end)
-      end)
+      # Go on with Djikstra
+      true ->
+        current_distance = Map.fetch!(distances, current)
 
-    unvisited = MapSet.delete(unvisited, current)
+        {distances, queue} =
+          graph
+          |> Map.fetch!(current)
+          |> Enum.filter(fn {node, _distance} -> node in unvisited end)
+          |> Enum.reduce({distances, queue}, fn {node, node_distance}, {distances, queue} ->
+            new_distance = current_distance + node_distance
 
-    current =
-      unvisited
-      |> Enum.map(&{&1, Map.fetch!(distances, &1)})
-      |> Enum.reject(fn {_node, dist} -> dist == :infinity end)
-      |> Enum.min_by(fn {_node, dist} -> dist end)
-      |> elem(0)
+            case Map.fetch!(distances, node) do
+              existing_distance when is_integer(existing_distance) and existing_distance <= new_distance ->
+                {distances, queue}
 
-    do_djikstra(graph, unvisited, distances, current, dest)
+              _larger ->
+                distances = Map.put(distances, node, new_distance)
+                queue = PriorityQueue.push(queue, node, new_distance)
+                {distances, queue}
+            end
+          end)
+
+        unvisited = MapSet.delete(unvisited, current)
+
+        do_djikstra(graph, unvisited, distances, queue, dest)
+    end
   end
 
   # Returns a map of %{node => [{node, weight}]}
@@ -81,13 +104,33 @@ defmodule Advent.Day15 do
     end)
   end
 
-  @doc """
-  Part 2
-  """
-  @spec part_2(String.t()) :: integer
-  def part_2(input) do
-    input
-    |> parse()
+  defp extend_map(map) do
+    {max_x, max_y} = map |> Map.keys() |> Enum.max()
+    size_x = max_x + 1
+    size_y = max_y + 1
+
+    deltas =
+      for dx <- 0..4,
+          dy <- 0..4 do
+        {dx, dy}
+      end
+      |> Enum.map(fn {dx, dy} ->
+        {{dx * size_x, dy * size_y}, dx + dy}
+      end)
+
+    map
+    |> Enum.flat_map(fn {{x, y}, risk} ->
+      Enum.map(deltas, fn {{dx, dy}, addon_risk} ->
+        new_risk =
+          case risk + addon_risk do
+            n when n <= 9 -> n
+            n when n > 9 -> n - 9
+          end
+
+        {{x + dx, y + dy}, new_risk}
+      end)
+    end)
+    |> Enum.into(%{})
   end
 
   defp parse(input) do
