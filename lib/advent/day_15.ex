@@ -39,13 +39,13 @@ defmodule Advent.Day15 do
   defp djikstra(graph, start, goal) do
     unvisited = graph |> Map.keys() |> MapSet.new()
     distances = graph |> Map.keys() |> Enum.into(%{}, &{&1, :infinity}) |> Map.put(start, 0)
-    queue = PriorityQueue.new() |> PriorityQueue.push(start, 0)
+    queue = build_bucket_queue() |> push_bucket_queue(start, 0)
 
     do_djikstra(graph, unvisited, distances, queue, goal)
   end
 
   defp do_djikstra(graph, unvisited, distances, queue, goal) do
-    {{:value, current}, queue} = PriorityQueue.pop(queue)
+    {current, queue} = pop_bucket_queue(queue)
 
     cond do
       # We have reached the destination
@@ -74,7 +74,7 @@ defmodule Advent.Day15 do
               _larger ->
                 distances = Map.put(distances, node, new_distance)
                 minimum_remaining_distance = manhattan_distance(node, goal)
-                queue = PriorityQueue.push(queue, node, new_distance + minimum_remaining_distance)
+                queue = push_bucket_queue(queue, node, new_distance + minimum_remaining_distance)
                 {distances, queue}
             end
           end)
@@ -82,6 +82,18 @@ defmodule Advent.Day15 do
         unvisited = MapSet.delete(unvisited, current)
 
         do_djikstra(graph, unvisited, distances, queue, goal)
+    end
+  end
+
+  # Bucket queue implementation in three functions
+  defp build_bucket_queue(), do: {%{}, 0}
+  defp push_bucket_queue({map, lowest}, node, cost), do: {Map.update(map, cost, [node], &[node | &1]), lowest}
+
+  defp pop_bucket_queue({map, lowest}) do
+    case Map.fetch(map, lowest) do
+      {:ok, [next]} -> {next, {Map.delete(map, lowest), lowest}}
+      {:ok, [next | rest]} -> {next, {Map.put(map, lowest, rest), lowest}}
+      :error -> pop_bucket_queue({map, lowest + 1})
     end
   end
 
