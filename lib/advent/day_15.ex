@@ -37,8 +37,11 @@ defmodule Advent.Day15 do
   end
 
   defp djikstra(graph, start, goal) do
+    max_distance = manhattan_distance(start, goal) * 9
+    infinity = max_distance + 1
+
     unvisited = graph |> Map.keys() |> MapSet.new()
-    distances = graph |> Map.keys() |> Enum.into(%{}, &{&1, :infinity}) |> Map.put(start, 0)
+    distances = graph |> Map.keys() |> Enum.into(%{}, &{&1, infinity}) |> Map.put(start, 0)
     queue = build_bucket_queue() |> push_bucket_queue(start, 0)
 
     do_djikstra(graph, unvisited, distances, queue, goal)
@@ -68,7 +71,7 @@ defmodule Advent.Day15 do
             new_distance = current_distance + node_distance
 
             case Map.fetch!(distances, node) do
-              existing_distance when is_integer(existing_distance) and existing_distance <= new_distance ->
+              existing_distance when existing_distance <= new_distance ->
                 {distances, queue}
 
               _larger ->
